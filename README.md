@@ -1,98 +1,94 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Sistema de Gestión de Eventos Corporativos
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Este es un sistema backend desarrollado con **NestJS**, **TypeScript** y **TypeORM** utilizando **PostgreSQL** como base de datos. El proyecto incluye autenticación basada en JWT, gestión de roles, y un modelo de datos estructurado para controlar eventos, asistentes, proveedores, órdenes de servicio y pagos.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## Tecnologías y Características principales
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+*   **NestJS (v11)**: Framework progresivo de Node.js.
+*   **TypeORM**: Mapeador objeto-relacional (ORM) para la interacción con la base de datos PostgreSQL.
+*   **PostgreSQL**: Base de datos relacional para persistencia de datos.
+*   **JWT & Passport**: Para la autenticación y protección de rutas mediante tokens JWT y control de roles.
+*   **Docker & Docker Compose**: Configuración lista para levantar la base de datos de manera local y aislada.
+*   **Bcrypt**: Para el hash seguro de contraseñas de usuarios.
 
-## Project setup
+---
 
+## Estructura del Modelo de Datos (Módulos)
+
+El sistema actualmente cuenta con los siguientes módulos:
+
+1.  **Auth (Autenticación)**: Registro (`/auth/register`) y Login (`/auth/login`) con hashing de contraseñas y generación de JWT. Soporte para guardianes de roles (`RolesGuard`).
+2.  **Event (Eventos)**: Administración de eventos (ubicación, fecha, presupuesto aprobado, aforo máximo).
+3.  **Attendee (Asistentes)**: Registro de asistentes vinculados a eventos específicos, validando límites de aforo y correos duplicados por evento.
+4.  **Provider (Proveedores)**: Clasificación de proveedores en categorías (Catering, Audiovisual, Decoración, Logística).
+5.  **Service Order (Órdenes de Servicio)**: Registro de montos y estados (Pendiente, Aprobada) asociados a un proveedor y un evento.
+6.  **Payment (Pagos)**: Registro de pagos parciales o finales para liquidar las órdenes de servicio.
+
+---
+
+## Requisitos Previos
+
+Asegúrate de tener instalado en tu máquina:
+*   [Node.js](https://nodejs.org/) (Versión recomendada: v18 o superior)
+*   [npm](https://www.npmjs.com/)
+*   [Docker](https://www.docker.com/) (Opcional, pero recomendado para levantar la base de datos)
+
+---
+
+## Inicialización y Configuración
+
+Sigue estos pasos para poner en marcha el proyecto localmente:
+
+### 1. Clonar el repositorio e instalar dependencias
 ```bash
-$ npm install
+# Instala las dependencias del proyecto
+npm install
 ```
 
-## Compile and run the project
+### 2. Configurar las Variables de Entorno
+Crea un archivo `.env` en la raíz del proyecto (puedes tomar como referencia el archivo `.env` actual o crear uno nuevo) con las siguientes variables configuradas:
 
-```bash
-# development
-$ npm run start
+```env
+// Secretos y credenciales de JWT
+JWT_SECRET=tu_secreto_seguro_para_jwt
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+// Conexión con la Base de Datos
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=nest_user
+DB_PASSWORD=nest_password
+DB_NAME=corporate_events
 ```
 
-## Run tests
+### 3. Levantar la Base de Datos con Docker
+El proyecto incluye un archivo `docker-compose.yml` preconfigurado con una base de datos PostgreSQL. Para iniciarla, ejecuta en tu terminal:
 
 ```bash
-# unit tests
-$ npm run test
+docker-compose up -d
+```
+> [!NOTE]
+> Si deseas usar una base de datos PostgreSQL local instalada en tu sistema sin Docker, asegúrate de que esté ejecutándose en el puerto `5432` y que las credenciales del archivo `.env` coincidan con las de tu instalación local.
 
-# e2e tests
-$ npm run test:e2e
+---
 
-# test coverage
-$ npm run test:cov
+## Ejecución del Proyecto
+
+### Desarrollo (Modo Watch)
+Para ejecutar la aplicación localmente en modo desarrollo con recarga automática al guardar cambios:
+```bash
+npm run start:dev
 ```
 
-## Deployment
+---
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## Pruebas (Tests)
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+El proyecto cuenta con suites de pruebas unitarias configuradas con Jest.
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Ejecutar todas las pruebas unitarias
+npm run test
+
 ```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).

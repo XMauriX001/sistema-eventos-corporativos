@@ -8,6 +8,7 @@ import { AttendeeModule } from './attendee/attendee.module';
 import { ProviderModule } from './provider/provider.module';
 import { ServiceOrderModule } from './service-order/service-order.module';
 import { PaymentModule } from './payment/payment.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { PaymentModule } from './payment/payment.module';
     ProviderModule,
     ServiceOrderModule,
     PaymentModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

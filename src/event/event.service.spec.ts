@@ -1,15 +1,29 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { EventoService } from './event.service';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { EventService } from './event.service';
+import { Event } from './event.entity';
 
-describe('EventoService', () => {
-  let service: EventoService;
+describe('EventService', () => {
+  let service: EventService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [EventoService],
+      providers: [
+        EventService,
+        {
+          provide: getRepositoryToken(Event),
+          useValue: {
+            create: jest.fn(),
+            save: jest.fn(),
+            find: jest.fn(),
+            findOne: jest.fn(),
+            remove: jest.fn(),
+          },
+        },
+      ],
     }).compile();
 
-    service = module.get<EventoService>(EventoService);
+    service = module.get<EventService>(EventService);
   });
 
   it('should be defined', () => {

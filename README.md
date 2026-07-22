@@ -1,94 +1,213 @@
 # Sistema de Gestión de Eventos Corporativos
 
-Este es un sistema backend desarrollado con **NestJS**, **TypeScript** y **TypeORM** utilizando **PostgreSQL** como base de datos. El proyecto incluye autenticación basada en JWT, gestión de roles, y un modelo de datos estructurado para controlar eventos, asistentes, proveedores, órdenes de servicio y pagos.
+Una solución backend robusta y escalable construida con **NestJS**, **TypeORM** y **PostgreSQL** diseñada para la planificación, organización y control financiero de eventos corporativos.
+
+El sistema permite gestionar todo el ciclo de vida de un evento: desde el control de aforo e inscripción de asistentes con validación de accesos vía código QR, hasta el alta de proveedores por categoría, la emisión y aprobación de órdenes de servicio, el registro de pagos parciales/totales y la conciliación financiera en tiempo real.
 
 ---
 
-## Tecnologías y Características principales
+## Tecnologías Clave
 
-*   **NestJS (v11)**: Framework progresivo de Node.js.
-*   **TypeORM**: Mapeador objeto-relacional (ORM) para la interacción con la base de datos PostgreSQL.
-*   **PostgreSQL**: Base de datos relacional para persistencia de datos.
-*   **JWT & Passport**: Para la autenticación y protección de rutas mediante tokens JWT y control de roles.
-*   **Docker & Docker Compose**: Configuración lista para levantar la base de datos de manera local y aislada.
-*   **Bcrypt**: Para el hash seguro de contraseñas de usuarios.
-
----
-
-## Estructura del Modelo de Datos (Módulos)
-
-El sistema actualmente cuenta con los siguientes módulos:
-
-1.  **Auth (Autenticación)**: Registro (`/auth/register`) y Login (`/auth/login`) con hashing de contraseñas y generación de JWT. Soporte para guardianes de roles (`RolesGuard`).
-2.  **Event (Eventos)**: Administración de eventos (ubicación, fecha, presupuesto aprobado, aforo máximo).
-3.  **Attendee (Asistentes)**: Registro de asistentes vinculados a eventos específicos, validando límites de aforo y correos duplicados por evento.
-4.  **Provider (Proveedores)**: Clasificación de proveedores en categorías (Catering, Audiovisual, Decoración, Logística).
-5.  **Service Order (Órdenes de Servicio)**: Registro de montos y estados (Pendiente, Aprobada) asociados a un proveedor y un evento.
-6.  **Payment (Pagos)**: Registro de pagos parciales o finales para liquidar las órdenes de servicio.
+* **Framework Core**: [NestJS (v11)](https://nestjs.com/) - Arquitectura modular y extensible.
+* **Lenguaje**: TypeScript.
+* **Persistencia de Datos**: [PostgreSQL](https://www.postgresql.org/) con [TypeORM](https://typeorm.io/).
+* **Autenticación & Seguridad**: JWT (JSON Web Tokens), Passport, Bcrypt, y Control de Acceso Basado en Roles (RBAC).
+* **Validación de Datos**: `class-validator` y `class-transformer` para validación y transformación estricta de DTOs.
+* **Documentación de API**: Swagger / OpenAPI (disponible en `/api`).
+* **Testing**: Jest & Supertest para pruebas unitarias y de integración.
 
 ---
 
 ## Requisitos Previos
 
-Asegúrate de tener instalado en tu máquina:
-*   [Node.js](https://nodejs.org/) (Versión recomendada: v18 o superior)
-*   [npm](https://www.npmjs.com/)
-*   [Docker](https://www.docker.com/) (Opcional, pero recomendado para levantar la base de datos)
+Antes de comenzar, asegúrate de contar con lo siguiente en tu entorno local:
+
+1. **Node.js**: Versión 18.x o superior.
+2. **npm**: Gestor de paquetes incluido con Node.js.
+3. **Instancia de PostgreSQL**: 
+   - **Localmente**: Instala PostgreSQL de forma nativa en tu sistema operativo y asegúrate de que el servicio esté corriendo en el puerto por defecto (`5432`).
+   - **En la Nube**: Obtén las credenciales de conexión (Host, Puerto, Usuario, Contraseña, Nombre de la DB) de tu proveedor cloud.
 
 ---
 
-## Inicialización y Configuración
-
-Sigue estos pasos para poner en marcha el proyecto localmente:
+## Instalación y Configuración
 
 ### 1. Clonar el repositorio e instalar dependencias
+
 ```bash
-# Instala las dependencias del proyecto
+git clone <URL_DEL_REPOSOTORIO>
+cd sistema-eventos-corporativos
 npm install
 ```
 
-### 2. Configurar las Variables de Entorno
-Crea un archivo `.env` en la raíz del proyecto (puedes tomar como referencia el archivo `.env` actual o crear uno nuevo) con las siguientes variables configuradas:
+### 2. Crear la Base de Datos
+
+En tu instancia de PostgreSQL (vía `psql`, pgAdmin o cliente preferido), crea la base de datos para el proyecto:
+
+```sql
+CREATE DATABASE corporate_events;
+```
+
+### 3. Configurar las Variables de Entorno (`.env`)
+
+Crea un archivo llamado `.env` en la raíz del proyecto. Puedes tomar el siguiente ejemplo como plantilla:
 
 ```env
-// Secretos y credenciales de JWT
-JWT_SECRET=tu_secreto_seguro_para_jwt
+# Clave secreta para la firma y verificación de tokens JWT
+JWT_SECRET=tu_secreto_super_seguro_jwt_2026
 
-// Conexión con la Base de Datos
+# Configuración de Conexión a la Base de Datos PostgreSQL
 DB_HOST=localhost
 DB_PORT=5432
-DB_USERNAME=nest_user
-DB_PASSWORD=nest_password
+DB_USERNAME=postgres
+DB_PASSWORD=tu_contraseña_local
 DB_NAME=corporate_events
 ```
 
-### 3. Levantar la Base de Datos con Docker
-El proyecto incluye un archivo `docker-compose.yml` preconfigurado con una base de datos PostgreSQL. Para iniciarla, ejecuta en tu terminal:
-
-```bash
-docker-compose up -d
-```
-> [!NOTE]
-> Si deseas usar una base de datos PostgreSQL local instalada en tu sistema sin Docker, asegúrate de que esté ejecutándose en el puerto `5432` y que las credenciales del archivo `.env` coincidan con las de tu instalación local.
+*Si usas un servicio de PostgreSQL en la nube, reemplaza `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD` y `DB_NAME` con las credenciales provistas por tu proveedor.*
 
 ---
 
 ## Ejecución del Proyecto
 
-### Desarrollo (Modo Watch)
-Para ejecutar la aplicación localmente en modo desarrollo con recarga automática al guardar cambios:
+### Modo Desarrollo (con Live Reload)
 ```bash
 npm run start:dev
+```
+La aplicación estará escuchando en `http://localhost:3000`.
+
+### Compilación y Producción
+```bash
+# Compilar el proyecto a JavaScript
+npm run build
+
+# Ejecutar el build de producción
+npm run start:prod
 ```
 
 ---
 
-## Pruebas (Tests)
+## Pruebas (Testing)
 
-El proyecto cuenta con suites de pruebas unitarias configuradas con Jest.
+El proyecto cuenta con suites de pruebas unitarias y de integración desarrolladas con Jest.
 
 ```bash
 # Ejecutar todas las pruebas unitarias
-npm run test
+npm test
 
+# Ejecutar pruebas en modo observador (watch mode)
+npm run test:watch
+
+# Generar reporte de cobertura de código (coverage)
+npm run test:cov
+
+# Ejecutar pruebas end-to-end (e2e)
+npm run test:e2e
 ```
+
+---
+
+## Documentación Interactiva de la API (Swagger)
+
+La API cuenta con documentación interactiva generada con **Swagger**. 
+
+Una vez iniciada la aplicación, accede desde tu navegador web a:
+
+👉 **[http://localhost:3000/api](http://localhost:3000/api)**
+
+### ¿Cómo autenticarse en Swagger?
+1. Realiza una petición `POST` al endpoint `/auth/login` con tus credenciales.
+2. Copia el token de acceso JWT retornado en la respuesta.
+3. En la parte superior derecha de la interfaz de Swagger, haz clic en el botón **Authorize**.
+4. Pega el token y confirma. ¡Ahora podrás probar todos los endpoints protegidos directamente desde Swagger!
+
+---
+
+## Mapa de la API y Módulos Principales
+
+La arquitectura modular está dividida en los siguientes dominios de negocio:
+
+### 1. Auth (`/auth`)
+Gestión de identidad, registro e inicio de sesión con contraseñas encriptadas mediante `bcrypt`.
+* `POST /auth/register`: Registrar un nuevo usuario (`Admin` u `Organizador`).
+* `POST /auth/login`: Autenticarse y recibir un JSON Web Token (JWT).
+
+### 2. Event (`/event`)
+Administración de eventos corporativos, definición de fechas, lugar, presupuesto aprobado y aforo máximo.
+* `POST /event`: Crear un nuevo evento (Requiere rol `Admin`).
+* `GET /event`: Listar todos los eventos.
+* `GET /event/:id`: Obtener detalles de un evento específico.
+* `PATCH /event/:id`: Actualizar información de un evento (Requiere rol `Admin`).
+* `DELETE /event/:id`: Eliminar un evento (Requiere rol `Admin`).
+
+### 3. Attendee (`/attendee`)
+Gestión de participantes, inscripciones y control de asistencia mediante códigos QR únicos.
+* `POST /attendee/register`: Inscribir un asistente a un evento (valida que no se exceda el aforo máximo ni existan correos duplicados por evento).
+* `POST /attendee/check-in/:qrCode`: Escanear o registrar la entrada del asistente mediante su código QR (Requiere roles `Admin` u `Organizador`).
+
+### 4. Provider (`/provider`)
+Registro y mantenimiento de proveedores clasificados por categorías (`Catering`, `Audiovisual`, `Decoración`, `Logística`).
+* `POST /provider`: Registrar un nuevo proveedor (Requiere rol `Admin`).
+* `GET /provider`: Listar proveedores (filtro opcional por `category`).
+* `GET /provider/:id`: Obtener la ficha de un proveedor por ID.
+* `PATCH /provider/:id`: Actualizar datos de un proveedor (Requiere rol `Admin`).
+* `DELETE /provider/:id`: Eliminar un proveedor (solo si no tiene órdenes de servicio asociadas).
+
+### 5. Service Order (`/service-order`)
+Órdenes de compra/servicio vinculadas a un evento y a un proveedor.
+* `POST /service-order`: Crear una orden de servicio (valida que el monto no exceda el presupuesto aprobado del evento).
+* `GET /service-order`: Listar todas las órdenes de servicio.
+* `GET /service-order/event/:eventId`: Listar órdenes asignadas a un evento específico.
+* `GET /service-order/provider/:providerId`: Listar órdenes asignadas a un proveedor.
+* `GET /service-order/:id`: Consultar una orden específica.
+* `PATCH /service-order/:id/approve`: Aprobar una orden de servicio (Requiere rol `Admin`).
+* `PATCH /service-order/:id`: Actualizar el monto de una orden (Requiere roles `Admin` u `Organizador`).
+* `DELETE /service-order/:id`: Eliminar una orden de servicio (solo si no posee pagos registrados).
+
+### 6. Payment (`/payment`)
+Módulo financiero para abonar a órdenes de servicio aprobadas y verificar estados de cuenta.
+* `POST /payment`: Registrar un pago parcial o final hacia una orden de servicio aprobada (valida que el saldo no se exceda y que no existan órdenes pendientes de aprobación para el proveedor).
+* `GET /payment`: Listar el historial de pagos.
+* `GET /payment/:id`: Obtener el detalle de un pago por ID.
+* `GET /payment/provider/:providerId/balance`: Consultar el saldo pendiente global de un proveedor.
+* `GET /payment/reconciliation/:eventId`: Reporte de conciliación financiera del evento (Presupuesto vs. Gasto Real vs. Varianza desglosada por categoría de proveedor).
+
+---
+
+## Flujo Lógico de Uso del Sistema
+
+Para experimentar la integración completa del sistema, se sugiere seguir el siguiente flujo operativo:
+
+```mermaid
+flowchart TD
+    A[1. Autenticación / Registro] -->|POST /auth/register| B[Obtener JWT vía POST /auth/login]
+    B --> C[2. Creación del Evento]
+    C -->|POST /event| D[Evento creado con Presupuesto y Aforo]
+    D --> E[3. Registro de Proveedores]
+    E -->|POST /provider| F[Proveedores por Categoría]
+    D & F --> G[4. Crear Órden de Servicio]
+    G -->|POST /service-order| H[Validación de Presupuesto del Evento]
+    H -->|PATCH /service-order/:id/approve| I[Órden Aprobada]
+    I --> J[5. Registrar Pagos y Conciliación]
+    J -->|POST /payment| K[Abonos a Órden]
+    J -->|GET /payment/reconciliation/:eventId| L[Reporte Financiero]
+    D --> M[6. Inscripción y Asistencia]
+    M -->|POST /attendee/register| N[Generación de QR para Asistente]
+    N -->|POST /attendee/check-in/:qrCode| O[Ingreso al Evento]
+```
+
+1. **Autenticación**: Registra un usuario inicial (`/auth/register`) e inicia sesión (`/auth/login`) para obtener el Bearer Token.
+2. **Crear un Evento**: Define un evento con un presupuesto asignado (ej. `$50,000`) y un aforo máximo (ej. `200` personas).
+3. **Alta de Proveedores**: Registra proveedores en las categorías requeridas (ej. `Catering`, `Audiovisual`).
+4. **Emitir y Aprobar Órdenes de Servicio**:
+   - Crea una orden de servicio para el proveedor asignado al evento. El sistema verificará automáticamente que el monto acumulado no supere el presupuesto del evento.
+   - Un usuario con rol `Admin` aprueba la orden (`/service-order/:id/approve`).
+5. **Registrar Pagos y Conciliar**:
+   - Registra abonos o el pago total (`/payment`) para liquidar la orden aprobada.
+   - Consulta la conciliación financiera (`/payment/reconciliation/:eventId`) para obtener la varianza entre lo presupuestado y lo gastado en tiempo real.
+6. **Gestión de Asistentes y Check-in**:
+   - Registra asistentes al evento (`/attendee/register`). Se verificará que el aforo disponible no haya sido alcanzado.
+   - Al momento del evento, realiza el check-in escaneando el `qrCode` (`/attendee/check-in/:qrCode`).
+
+---
+
